@@ -9,6 +9,10 @@ class Slider {
     int in2;
     int enb;
     int pos_pot;
+    int lastError;
+    int integralError;
+    int currentPosition;
+    int targetPosition;
   public:
     Slider(int in1, int in2, int enb, int pos_pot);
     void setTarget(int targetPosition);
