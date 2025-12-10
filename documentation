@@ -1,0 +1,49 @@
+# Arduino Slider Controller
+
+## Üldine kirjeldus
+See projekt on loodud Arduino platvormil ja võimaldab kasutajal sliderite (faderite) abil juhtida nende positsiooni ning nende hetkeasendit loetava andmeid saata arvutile. Projekti keskmes on sliderite täpne juhtimine PID-algoritmi abil ning sliderite positsiooni saamine analoogsisendist (potentsiomeetrist). Lisaks saab arvutist saadud käskudega sliderite positsiooni muuta, võimaldades kaugjuhtimist ja automaatset juhtimist.
+
+## Komponendid
+- Mikrokontroller (esp32)
+- 5x Slaider (mootor, potentsiomeeter)
+- Draiver (mootorite juhtimiseks)
+- USB-ühendus (andmevahetuseks arvutiga)
+
+## Funktsionaalsus
+- Sliderite positsiooni saamine ja kuvamine arvutile
+- Sliderite liigutamine soovitud positsiooni (PID-algoritmi abil)
+- Andmete saatmine ja vastuvõtmine arvutiga (USB kaudu)
+- Võimalus lisada lisaseadeid (nt sliderite arv, muud seaded)
+
+## Koodi struktuur
+- Slaidi positsiooni mõõtmine analoogsisendist
+- PID-algoritmi abil sliderite liigutamine soovitud positsiooni
+- Andmete saatmine ja vastuvõtmine käskudega (REQUEST_INFO, REQUEST_VOLUME, SET_VOLUME)
+- Slaidi liigutamise ja seadistuste tüübi ID-de kasutamine andmevahetuses
+
+## Täiendused ja arendusvõimalused
+- Slaidi positsiooni täpsuse parandamine
+- Mitme slaidi juhtimine samaaegselt
+- Värvilised LED-id slaidi seisundi indikaatoriks
+- Kasutajaliidese loomine arvutile (näiteks Processing või Python)
+
+## Näide koodist
+
+enum InCommand {
+REQUEST_INFO = 0x01,
+REQUEST_VOLUME = 0x02,
+SET_VOLUME = 0x03,
+};
+
+enum OutCommand {
+SEND_INFO = 0x81,
+SEND_VOLUME = 0x82,
+};
+
+enum DataTypeID {
+DATA_SLIDER_COUNT = 0x01,
+DATA_SLIDER_VOLUME = 0x02,
+DATA_AMOR_SETTINGS = 0x03,
+DATA_BRIGHTNESS = 0x04,
+DATA_COLOR = 0x05,
+};
