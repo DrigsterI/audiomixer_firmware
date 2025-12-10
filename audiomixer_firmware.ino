@@ -4,6 +4,8 @@
 
 Slider slider1 = Slider(2, 3, 4, A0);
 Slider slider2 = Slider(5, 6, 7, A1);
+const int sliderCount = 2;
+Slider sliders[2] = {slider1, slider2};
 
 USBCDC USBSerial;
 
@@ -71,27 +73,52 @@ void loop() {
   slider2.tick();
 }
 
-enum Command {
+enum InCommand {
   REQUEST_INFO = 0x01,
   REQUEST_VOLUME = 0x02,
   SET_VOLUME = 0x03,
 };
 
+enum OutCommand {
+  SEND_INFO = 0x81,
+  SEND_VOLUME = 0x82,
+};
+
 static void recieveCommand(uint8_t *buf, size_t len) {
-  enum Command command = (enum Command)buf[0];
+  enum InCommand command = (enum InCommand)buf[0];
   uint8_t channel = buf[1];
   
   uint8_t *value_start = &buf[2];
   size_t value_len = len - 2;
 
   switch (command) {
-    case SET_VOLUME: {
+    case REQUEST_INFO: {
+      for (int i = 0; i < sliderCount; i++) {
+        USBSerial.write(SEND_INFO);
+        USBSerial.write(i);
+        USBSerial.write(slider1.getVolume());
+        USBSerial.write(EOF);
+      }
+      break;
+    }
+    case REQUEST_VOLUME: {
       uint8_t value = value_start[0];
-      int volume = map(value, 0, 100, 0, 1023);
       Serial.print("Channel: ");
       Serial.print(channel, DEC);
       Serial.print(" Volume: ");
-      Serial.println(volume, DEC);
+      Serial.println(value, DEC);
+      break;
+    }
+    case SET_VOLUME: {
+      uint8_t value = value_start[0];
+      Serial.print("Channel: ");
+      Serial.print(channel, DEC);
+      Serial.print(" Value: ");
+      Serial.println(value, DEC);
+
+      if (channel <= sliderCount) {
+        sliders[channel - 1].setVolume(value);
+      }
       break;
     }
     default:

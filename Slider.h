@@ -14,6 +14,8 @@ class Slider {
     void setTarget(int targetPosition);
     void tick();
     void stop();
+    void setVolume(int newVolume);
+    int getVolume();
 };
 
 #endif

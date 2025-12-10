@@ -26,6 +26,16 @@ void Slider::setTarget(int newTargetPosition){
   targetPosition = newTargetPosition;
 }
 
+void Slider::setVolume(int newVolume) {
+  int pos = map(newVolume, 0, 100, 0, 1023);
+  setTarget(pos);
+}
+
+int Slider::getVolume(){
+  int volume = map(targetPosition, 0, 1023, 0, 100);
+  return volume;
+}
+
 void Slider::tick() {
   int pos = analogRead(pos_pot);
   if (abs(currentPosition - pos) >= 5){
