@@ -5,15 +5,12 @@ float kp = 1;       // Proportional gain
 float ki = 0.3;       // Integral gain
 float kd = 0.000015;       // Derivative gain
 
-Slider::Slider(int in1, int in2, int enb, int pos_pot) {
+Slider::Slider(int in1, int in2, int enb, int pos_pot, CallbackFunction callback) {
   this->in1 = in1;
   this->in2 = in2;
   this->enb = enb;
   this->pos_pot = pos_pot;
-  this->lastError = 0;
-  this->integralError = 0;
-  this->currentPosition = 0;
-  this->targetPosition = 0;
+  this->callback = callback;
 
   pinMode(in1, OUTPUT);
   pinMode(in2, OUTPUT);
@@ -21,32 +18,38 @@ Slider::Slider(int in1, int in2, int enb, int pos_pot) {
   pinMode(pos_pot, INPUT);
 }
 
-
 void Slider::setTarget(int newTargetPosition){
-  this->targetPosition = newTargetPosition;
-  Serial.print(this->targetPosition);
+  targetPosition = newTargetPosition;
+  targetReached = false;
 }
 
 void Slider::setVolume(int newVolume) {
+  Serial.printf("setVolume: %d\n", newVolume);
   int pos = map(newVolume, 0, 100, 0, 4095);
   setTarget(pos);
 }
 
 int Slider::getVolume(){
-  int volume = map(this->targetPosition, 0, 4095, 0, 100);
+  int volume = map(currentPosition, 0, 4095, 0, 100);
   return volume;
 }
 
 void Slider::tick() {
   int pos = analogRead(pos_pot);
-  if (abs(this->currentPosition - pos) >= 5){
-    this->currentPosition = pos;
+  if (abs(currentPosition - pos) >= 120){
+    if (targetReached) {
+      callback(getVolume());
+      targetPosition = pos;
+    }
+    currentPosition = pos;
   }
-  int error = this->targetPosition - this->currentPosition;
-  
+
+  int error = targetPosition - currentPosition;
+
   // Deadband to stop near target
-  if (abs(error) < 20) {
+  if (abs(error) < 20 && targetReached == false) {
     stop();
+    targetReached = true;
     return;
   }
   
