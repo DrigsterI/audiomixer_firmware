@@ -26,21 +26,23 @@ Slider movement → DC motors controlled through motor driver (PWM + direction p
 Volume data sent to PC → USB CDC serial communication
 
 # 4. Device behavior requirements
+```
 System logic described as rules (“If X, then Y”)
 If the user moves a physical slider:
-The potentiometer value changes
-The firmware detects the change
-Slider position is converted to volume (0-100)
-SEND_VOLUME command is sent to the PC
+  The potentiometer value changes
+  The firmware detects the change
+  Slider position is converted to volume (0-100)
+  SEND_VOLUME command is sent to the PC
 If the PC sends a SET_VOLUME command:
-The target position for the slider is calculated
-The motor moves the slider to the target using PID control
+  The target position for the slider is calculated
+  The motor moves the slider to the target using PID control
 If the slider reaches the target position:
-The motor stops
-PID integral error is reset
+  The motor stops
+  PID integral error is reset
 If USB is not connected:
-No commands are sent
-Slider control continues locally
+  No commands are sent
+  Slider control continues locally
+```
 
 # 5. List of physical system components (Hardware)
 
@@ -59,19 +61,18 @@ Textual description of connections:
 Example for one slider:
 <img width="1509" height="1124" alt="scheme" src="https://github.com/user-attachments/assets/1bcb9155-cc37-4333-9481-5e458b512ef4" />
 
-All GND pins connected to common ground
-
 # 7. Software (firmware logic)
 Firmware structure and logic overview
 Main firmware file audiomixer_firmware.ino:
 Main loop logic:
+```
 void loop() {
   for (Slider &slider : sliders) {
     slider.tick();
   }
   commandTick();
 }
-
+```
 Software modules
 Slider.cpp / Slider.h
 Handles motor control, position reading, and PID regulation
@@ -82,6 +83,7 @@ Manages persistent configuration using ESP32 NVS and JSON
 USBCallback.ino
 Handles USB CDC events and incoming data
 Communication protocol
+```
 PC → Device
 REQUEST_INFO = 0x01
 SET_VOLUME   = 0x02
@@ -89,19 +91,28 @@ SET_VOLUME   = 0x02
 Device → PC
 SEND_INFO   = 0x81
 SEND_VOLUME = 0x82
+```
 
 Data is sent in the format:
+```
 [COMMAND][CHANNEL][DATA][EOF]
+```
 
 
 # Media
+Working prototype
 
-(ссылки на видос и картинки, мб с самой репы)?
+![20260117_013753-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/4fba063c-898e-4007-9bbc-87f5980f0b12)
+
 
 
 # Links
 Figma: https://www.figma.com/design/y4uMa08nGjPaki2fUYyuy0/Audiomixer_app
+
 Repository: https://github.com/DrigsterI/audiomixer_firmware/tree/master
+
 Arduino documentation: https://www.arduino.cc
+
 ESP32 documentation: https://docs.espressif.com
+
 Slider documentation: https://tech.alpsalpine.com/e/products/detail/RSA0N11M9A0K/
